@@ -42,3 +42,10 @@ def get_cookie_info(cookie_name):
         if not re.search("not yet",content):
             return content,purpose
     return None,None
+
+def get_tracker_info(tracker):
+    page = requests.get("https://better.fyi/trackers/"+tracker)
+    soup = BeautifulSoup(page.content, 'html.parser')
+    description=soup.find('p').getText()
+    if not re.search("not find",description):
+        return description

@@ -6,7 +6,7 @@ import re
 import matplotlib, matplotlib.pyplot as plt
 from utils import levenshtein
 from utils import memoize
-from utils import get_cookie_info
+from utils import get_cookie_info,get_tracker_info
 
 def colorizer_factory(n,colorset=plt.cm.Set2):
     from_list = matplotlib.colors.LinearSegmentedColormap.from_list
@@ -110,6 +110,7 @@ def visualize_tohtml_audit(graphmap_inter):
 
     neighbor_map = net.get_adj_list()
     cookie_informer=memoize(get_cookie_info)
+    tracker_informer=memoize(get_tracker_info)
 
     # add neighbor data to node hover data
     for node in net.nodes:
@@ -135,6 +136,8 @@ def visualize_tohtml_audit(graphmap_inter):
         neighbor_map[node["id"]]=colored_neighbors
         node["title"] += "<br>Neighbors:<br>" + "<br>".join(neighbor_map[node["id"]])
         node["value"] = len(neighbor_map[node["id"]])
+
+        ######### cookie meta
         cookie_meta=cookie_informer(node["id"])
         if any(cookie_meta):
             description ="<br>description" +"<br>"+"¯"*10+"<br>"+ "<br>".join(cookie_meta[0].split("."))
@@ -142,6 +145,14 @@ def visualize_tohtml_audit(graphmap_inter):
             node["title"] += "<br>"+"-"*len(max(description,purpose))
             node["title"] += description
             node["title"] += purpose
+
+        ########## tracker meta
+        tracker_meta=tracker_informer(node["id"][1:])
+        if tracker_meta:
+            description ="<br>description" +"<br>"+"¯"*10+"<br>"+ "<br>".join(tracker_meta.split("."))
+            node["title"] += "<br>"+"-"*len(max(description))
+            node["title"] += description
+
 
     net.show_buttons()
     net.show("c:/workspace/msc/cookie_visualizer/cookiesvis.html")
