@@ -29,10 +29,15 @@ if __name__=="__main__":
     p=subprocess.Popen(["chrome","--remote-debugging-port=9222","--incognito","--user-data-dir=remote-profile"])
     chrome_session = PyChromeConnector(port=9222)
 
-    graphmap_inter={"source":[],"target":[],"weight":[],"profile_type":[],"domain":[]}
+    graphmap_inter={"source":[],"target":[],"weight":[],"profile_type":[],"domain":[],"value":[]}
 
     url,alias=ask_url_and_get_alias()
-    chrome_session.go_page(url)
+
+
+    try:
+        chrome_session.go_page(url)
+    except:
+        chrome_session.go_page(url,"http://")
 
     try:
         while True:
@@ -54,17 +59,27 @@ if __name__=="__main__":
                             graphmap_inter["weight"].append(.01)
                             graphmap_inter["profile_type"].append(profile_type)
                             graphmap_inter["domain"].append(domain)
+                            graphmap_inter["value"].append(None)
+
                             graphmap_inter["source"].append(cookie['name'])
                             graphmap_inter["target"].append(get_domain(cookie["domain"]))
                             graphmap_inter["weight"].append(.01)
                             graphmap_inter["profile_type"].append(profile_type)
                             graphmap_inter["domain"].append(domain)
+                            graphmap_inter["value"].append(cookie["value"])
+
                         chrome_session.clear_cookies()
-                        chrome_session.go_page(url)
+                        try:
+                            chrome_session.go_page(url)
+                        except:
+                            chrome_session.go_page(url,"http://")
                     elif answer == "no":
                         visualize_tohtml_audit(graphmap_inter)
                         url,alias=ask_url_and_get_alias()
-                        chrome_session.go_page(url)
+                        try:
+                            chrome_session.go_page(url)
+                        except:
+                            chrome_session.go_page(url,"http://")
                     else:
                     	print("Please enter yes or no.")
     except KeyboardInterrupt:

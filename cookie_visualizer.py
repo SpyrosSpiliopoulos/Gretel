@@ -4,8 +4,12 @@ import matplotlib.pyplot as plt
 import mpld3
 import re
 import matplotlib, matplotlib.pyplot as plt
+from utils import levenshtein
 
-
+def colorizer_factory(n,colorset=plt.cm.Set2):
+    from_list = matplotlib.colors.LinearSegmentedColormap.from_list
+    cm = from_list('blabla', colorset(range(0,n+1)), n+1)
+    return lambda x: matplotlib.colors.to_hex(cm(x))
 
 def visualize_tohtml_globalmap(graphmap_inter):
     sources = graphmap_inter['source']
@@ -46,16 +50,25 @@ def visualize_tohtml_audit(graphmap_inter):
     weights = graphmap_inter['weight']
     profiletypes = graphmap_inter['profile_type']
     domains = graphmap_inter['domain']
+    values = graphmap_inter["value"]
 
-    unique_profiles=list(set(profiletypes))
+    unique_profiles=list(set([dom+"("+prf+")" for dom,prf in zip(domains,profiletypes)]))
     #get edge colors unique for each profiletype
     n = len(unique_profiles)
-    from_list = matplotlib.colors.LinearSegmentedColormap.from_list
-    cm = from_list('Set15', plt.cm.Set2(range(0,n)), n)
+    colorizer=colorizer_factory(n)
+
 
     map_profile_toint={key:val for key, val in zip(unique_profiles,range(n))}
+    value_mapper={source:{} for source in list(set(sources))}
+    for key,_ in value_mapper.items():
+        for src,dom,prf,value in zip(sources,domains,profiletypes,values):
+            if src==key:
+                dom_annotated=dom+"("+prf+")"
+                if not value:
+                    value=""
+                value_mapper[key][dom_annotated]=value
 
-    edge_data = zip(sources, targets, weights,profiletypes,domains)
+    edge_data = zip(sources, targets, weights,profiletypes,domains,values)
 
 
     net = Network(height="750px", width="100%", bgcolor="#011936", font_color="white",directed=True)
@@ -66,15 +79,16 @@ def visualize_tohtml_audit(graphmap_inter):
         w = e[2]
         prf = e[3]
         dom = e[4]
+        val = e[5]
         dom_annotated=dom+"("+prf+")"
         if src==dom:
             src=dom_annotated
-        if dst==dom:
+        if levenshtein(dst,dom)/(max(len(dst),len(dom)))<0.2:
             dst=dom_annotated
         if src==dst and src!=dom:
             c="green"
         elif src!=dst:
-            c=matplotlib.colors.to_hex(cm(map_profile_toint[prf]))
+            c=colorizer(map_profile_toint[dom_annotated])
 
         if src==dom_annotated:
             net.add_node(dom_annotated, dom_annotated, title="<font size='4'>%s</font>"%(src),color="#F9DC5C",size=3,physics=False)
@@ -96,7 +110,27 @@ def visualize_tohtml_audit(graphmap_inter):
 
     # add neighbor data to node hover data
     for node in net.nodes:
-        node["title"] += " Neighbors:<br>" + "<br>".join(neighbor_map[node["id"]])
+        if node["id"] in value_mapper.keys():
+            unique_hashes=list(set([val for _,val in value_mapper[node["id"]].items()]))
+            colorizer_hash=colorizer_factory(len(unique_hashes),plt.cm.Set1)
+            map_hash_toint={key:val for key, val in zip(unique_hashes,range(len(unique_hashes)))}
+            if len(unique_hashes)>1:
+                node["color"]="#ABFF4F"
+            values=["<font color='%s'>"%(colorizer(map_profile_toint[key]))+key+"</font>"+":>"+\
+            "<font color='%s'>"%(colorizer_hash(map_hash_toint[val]))+val+"</font>" for key,val in value_mapper[node["id"]].items()]
+            node["title"] += "<br>Values:<br>"+ "<br>".join(values)
+        neighbors=neighbor_map[node["id"]]
+        colored_neighbors=[]
+        for neighbor in neighbors:
+            if neighbor in unique_profiles or node["id"] in unique_profiles:
+                if neighbor in unique_profiles:
+                    colored_neighbors.append("<font color='%s'>"%(colorizer(map_profile_toint[neighbor]))+neighbor+"</font>")
+                else:
+                    colored_neighbors.append("<font color='%s'>"%(colorizer(map_profile_toint[node["id"]]))+neighbor+"</font>")
+            else:
+                colored_neighbors.append("<font color='#7A6C5D'>"+neighbor+"</font>")
+        neighbor_map[node["id"]]=colored_neighbors
+        node["title"] += "<br>Neighbors:<br>" + "<br>".join(neighbor_map[node["id"]])
         node["value"] = len(neighbor_map[node["id"]])
 
     net.show_buttons()

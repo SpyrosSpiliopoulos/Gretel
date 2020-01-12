@@ -11,16 +11,21 @@ class PyChromeConnector(ChromeInterface):
         self.Network.enable()
         self.Page.enable()
 
-    def go_page(self,url,scheme="http://"):
+    def go_page(self,url,scheme="https://"):
+        start_time=time.time()
         response=self.Page.navigate(url=scheme+url)
-        result= response['result']
-        errmsg=result.get('errorText')
-        if not errmsg:
-            event,messages=self.wait_event("Page.frameStoppedLoading", timeout=60)
-            if event:
-                time.sleep(3)
-        else:
-            raise ConException(action="navigating to"+url,errmsg=errmsg)
+        self.wait_event("Page.loadEventFired", timeout=60)
+        end_time=time.time()
+        print ("Page Loading Time:", end_time-start_time)
+        if response:
+            result= response.get('result')
+            errmsg=result.get('errorText')
+            if not errmsg:
+                event,messages=self.wait_event("Page.frameStoppedLoading", timeout=120)
+                if event:
+                    time.sleep(3)
+            else:
+                raise ConException(action="navigating to"+url,errmsg=errmsg)
 
     def get_cookies(self):
         #Wait last objects to load
