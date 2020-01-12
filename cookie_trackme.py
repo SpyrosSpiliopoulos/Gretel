@@ -1,6 +1,5 @@
 import time
 from pyvis.network import Network
-from bs4 import BeautifulSoup
 import requests
 import os
 import re
@@ -74,6 +73,7 @@ if __name__=="__main__":
                         except:
                             chrome_session.go_page(url,"http://")
                     elif answer == "no":
+                        print("now visualizing the results. Please wait...")
                         visualize_tohtml_audit(graphmap_inter)
                         url,alias=ask_url_and_get_alias()
                         try:
