@@ -36,7 +36,7 @@ def get_cookie_info(cookie_name):
     soup = BeautifulSoup(page.content, 'html.parser')
     paragraphs=soup.findAll('p')
     h2=soup.find('h2').getText()
-    if not re.match("[sS]orry",h2):
+    if not re.match("[sS]orry",h2) and paragraphs:
         content=paragraphs[0].getText()
         purpose=paragraphs[1].getText()
         if not re.search("not yet",content):

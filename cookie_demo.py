@@ -33,14 +33,14 @@ def get_demo_cookies(chrome):
                     websites.append(row.img["name"])
                 except:
                     pass
-        with open("c:/workspace/msc/cookie_visualizer/websites.txt","w+") as f:
+        with open("c:/workspace/msc/Gretel/websites.txt","w+") as f:
             f.write(str(websites))
 
 
     greekwebsites=list(filter(lambda x: re.match(".+\.gr",x), websites))
 
     try:
-        graphmap_inter=pd.read_pickle("c:/workspace/msc/cookie_visualizer/graphmap_cookies.pkl")
+        graphmap_inter=pd.read_pickle("c:/workspace/msc/Gretel/graphmap_cookies.pkl")
     except:
         graphmap = pd.DataFrame({"source":[],"target":[],"weight":[]})
         for i,website in enumerate(greekwebsites):
@@ -58,7 +58,7 @@ def get_demo_cookies(chrome):
         graphmap_inter["color"]="white"
         graphmap_inter["color"]=graphmap_inter["color"].where(graphmap_inter["source"]==graphmap_inter["target"],other="red")
 
-        graphmap_inter.to_pickle("c:/workspace/msc/cookie_visualizer/graphmap_cookies.pkl")
+        graphmap_inter.to_pickle("c:/workspace/msc/Gretel/graphmap_cookies.pkl")
 
     return graphmap_inter
 
