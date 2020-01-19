@@ -6,6 +6,8 @@ import re
 import subprocess
 from chrome_connector import PyChromeConnector
 from cookie_visualizer import visualize_tohtml_audit
+import pdb,traceback,sys
+
 
 
 def ask_url_and_get_alias():
@@ -73,13 +75,24 @@ if __name__=="__main__":
                         except:
                             chrome_session.go_page(url,"http://")
                     elif answer == "no":
-                        print("now visualizing the results. Please wait...")
-                        visualize_tohtml_audit(graphmap_inter)
-                        url,alias=ask_url_and_get_alias()
-                        try:
-                            chrome_session.go_page(url)
-                        except:
-                            chrome_session.go_page(url,"http://")
+                        doanother=None
+                        while doanother not in ("yes", "no"):
+                            doanother = input("Do you want to add another website? (yes or no): ")
+                        if doanother=="yes":
+                            try:
+                                url,alias=ask_url_and_get_alias()
+                                chrome_session.go_page(url)
+                            except:
+                                chrome_session.go_page(url,"http://")
+                        else:
+                            print("now visualizing the results. Please wait...")
+                            try:
+                                visualize_tohtml_audit(graphmap_inter)
+                            except:
+                                extype, value, tb = sys.exc_info()
+                                traceback.print_exc()
+                                pdb.post_mortem(tb)
+                            sys.exit()
                     else:
                     	print("Please enter yes or no.")
     except KeyboardInterrupt:

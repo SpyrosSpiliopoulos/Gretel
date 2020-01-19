@@ -7,6 +7,7 @@ import matplotlib, matplotlib.pyplot as plt
 from utils import levenshtein
 from utils import memoize
 from utils import get_cookie_info,get_tracker_info
+from time import time
 
 def colorizer_factory(n,colorset=plt.cm.Set2):
     from_list = matplotlib.colors.LinearSegmentedColormap.from_list
@@ -113,7 +114,10 @@ def visualize_tohtml_audit(graphmap_inter):
     tracker_informer=memoize(get_tracker_info)
 
     # add neighbor data to node hover data
-    for node in net.nodes:
+    for i,node in enumerate(net.nodes):
+        perc_complete=round(i/len(net.nodes)*100)
+        if round(time())%10==0:
+            print("\r","processed: ",perc_complete,"%")
         if node["id"] in value_mapper.keys():
             unique_hashes=list(set([val for _,val in value_mapper[node["id"]].items()]))
             colorizer_hash=colorizer_factory(len(unique_hashes),plt.cm.Set1)
