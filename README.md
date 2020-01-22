@@ -3,7 +3,8 @@
 
 ![alt text](https://upload.wikimedia.org/wikipedia/commons/d/d1/Hansel-and-gretel-rackham.jpg)
 
-**python cookie_trackme.py opens up a chrome incognito session
+### python cookie_trackme.py opens up a chrome incognito session
+
 1. you look around the website (probably change privacy settings)
 2. the console asks you whether you want to fetch cookies 
 3. you give a name to your cookie profile
