@@ -6,8 +6,8 @@
 ### instructions
 
 **if you have anaconda then:**
-conda create --name Gretel
-conda activate Gretel
+1. conda create --name Gretel
+2. conda activate Gretel
 
 **else:**
 1. pip install -r requirements.txt
