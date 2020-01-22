@@ -5,11 +5,11 @@
 
 ### instructions
 
-**if you have anaconda then:
+**if you have anaconda then:**
 conda create --name Gretel
 conda activate Gretel
 
-**else:
+**else:**
 1. pip install -r requirements.txt
 2. you should make chrome available to your environment through the PATH variable (try chrome from the console to check)
 
