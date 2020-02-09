@@ -4,3 +4,4 @@ mpld3==0.3
 networkx==2.3
 bs4
 requests>=2.22.0
+matplotlib>=3.0.3
